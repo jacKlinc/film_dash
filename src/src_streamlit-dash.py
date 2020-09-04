@@ -36,6 +36,7 @@ movies.drop(movies[movies.runtime == 0].index, inplace=True)
 movies.genres = movies.genres.apply(lambda a: json.loads(a.replace("'", "\"")))
 movies.genres.fillna('', inplace=True)
 
+## Runtime/Revenue Sliders
 # Runtime limits using sliders in sidebar
 st.sidebar.markdown('### Runtime')  
 runtime1 = st.sidebar.slider('Runtime lower limit', 0, movies.runtime.max(), 0, step=5)
@@ -47,6 +48,8 @@ revenue1 = st.sidebar.slider('Revenue lower limit', 0, movies.revenue.max(), 0, 
 revenue2 = st.sidebar.slider('Revenue upper limit', 0, movies.revenue.max(), movies.revenue.max(), step=10000)
 
 
+## Genre
+st.sidebar.markdown('### Genre')
 # Get unique list of genres
 genre_list = pd.Series(list(map(get_unique, movies.genres))).unique()
 # Convert JSON into list
@@ -62,11 +65,16 @@ picked_genre2 = st.sidebar.selectbox(
      'Pick another?',
      genre_list)
 
+## Year slider
+st.sidebar.markdown('### Year')
+picked_year = st.sidebar.slider('Choose year', movies.release_date.min().year, movies.release_date.max().year, 2000)
+
 filtered = movies[
     (movies.runtime >= runtime1) & (movies.runtime < runtime2) & 
     (movies.revenue >= revenue1) & (movies.revenue < revenue2) &
     (movies.genres.str.contains(picked_genre, regex=False)) &
-    (movies.genres.str.contains(picked_genre2, regex=False))
+    (movies.genres.str.contains(picked_genre2, regex=False)) &
+    (movies.release_date.dt.year == picked_year)
 ]
 
 'Control graph limits in the sidebar'
