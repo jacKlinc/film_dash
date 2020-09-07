@@ -19,22 +19,41 @@ def get_unique(row):
 
 st.title("Movie Dashboard")
 
-movies = pd.read_csv('./data/movies_metadata.csv')
-movies = movies[['id','imdb_id','title','budget','genres','original_language','production_countries','release_date','revenue','runtime','status','vote_average','vote_count']]
-movies = movies.convert_dtypes()
+@st.cache(allow_output_mutation=True)
+def load_data():
+    usecols=['budget', 'genres', 'original_language', 
+         'production_companies', 'production_countries', 'release_date', 
+         'revenue', 'runtime', 'spoken_languages', 'title', 'vote_average', 'vote_count']
 
-# Remove irregular ids
-movies.drop(movies.id.loc[movies.id.str.contains('-')].index, inplace=True)
+    used_dtypes = {
+        "genres": object, 
+        "original_language": str, 
+        "production_companies": object,  
+        "production_countries": object, 
+        "release_date": str, 
+        "spoken_languages": object, 
+        "title": str, 
+        "vote_average": float,
+        "vote_count": float
+    }
 
-# Parse dates
-movies.release_date = pd.to_datetime(movies.release_date, format='%Y-%m-%d', errors='coerce')
-# Drop zeros for revenue & runtime
-movies.drop(movies[movies.revenue == 0].index, inplace=True)
-movies.drop(movies[movies.runtime == 0].index, inplace=True)
+    movies = pd.read_csv('./data/movies_metadata.csv', dtype=used_dtypes, usecols=usecols)
+    # movies = movies[['id','imdb_id','title','budget','genres','original_language','production_countries','release_date','revenue','runtime','status','vote_average','vote_count']]
+    movies = movies.convert_dtypes()
 
-# Replace single quotes with double and read as JSON
-movies.genres = movies.genres.apply(lambda a: json.loads(a.replace("'", "\"")))
-movies.genres.fillna('', inplace=True)
+    # Parse dates
+    movies.release_date = pd.to_datetime(movies.release_date, format='%Y-%m-%d', errors='coerce')
+    # Drop zeros for revenue & runtime
+    movies.drop(movies[movies.revenue == 0].index, inplace=True)
+    movies.drop(movies[movies.runtime == 0].index, inplace=True)
+
+    # Replace single quotes with double and read as JSON
+    movies.genres = movies.genres.apply(lambda a: json.loads(a.replace("'", "\"")))
+    movies.genres.fillna('', inplace=True)
+
+    return movies
+
+movies = load_data()
 
 ## Runtime/Revenue Sliders
 # Runtime limits using sliders in sidebar
@@ -53,29 +72,65 @@ st.sidebar.markdown('### Genre')
 # Get unique list of genres
 genre_list = pd.Series(list(map(get_unique, movies.genres))).unique()
 # Convert JSON into list
-movies.genres = pd.Series(list(map(make_list, movies.genres)))
+movies['parsed_genres'] = pd.Series(list(map(make_list, movies.genres)))
 
-picked_genre = st.sidebar.selectbox(
-     'Pick a genre',
-     genre_list)
+# Convert to list and add Any option to slider
+genre_list = genre_list.tolist()
+genre_list.insert(0, 'Any')
 
-genre_list = np.delete(genre_list, np.argwhere(genre_list == picked_genre))
+# picked_genre = st.sidebar.selectbox(
+#      'Pick a genre',
+#      genre_list)
 
-picked_genre2 = st.sidebar.selectbox(
-     'Pick another?',
-     genre_list)
+# # Remove other genre option
+# genre_list = np.delete(genre_list, np.argwhere(genre_list == picked_genre))
+
+# picked_genre2 = st.sidebar.selectbox(
+#      'Pick another?',
+#      genre_list)
+
+# # Set to wildcard if either is 'Any
+# picked_genre = picked_genre2 = '' if (picked_genre == 'Any') or (picked_genre2 == 'Any') else picked_genre
 
 ## Year slider
-st.sidebar.markdown('### Year')
-picked_year = st.sidebar.slider('Choose year', movies.release_date.min().year, movies.release_date.max().year, 2000)
+agree = st.sidebar.checkbox('Select year')
 
-filtered = movies[
-    (movies.runtime >= runtime1) & (movies.runtime < runtime2) & 
-    (movies.revenue >= revenue1) & (movies.revenue < revenue2) &
-    (movies.genres.str.contains(picked_genre, regex=False)) &
-    (movies.genres.str.contains(picked_genre2, regex=False)) &
-    (movies.release_date.dt.year == picked_year)
-]
+picked_year=''
+
+if agree:
+    st.sidebar.markdown('### Year')
+    picked_year = st.sidebar.slider('Choose year', movies.release_date.min().year, movies.release_date.max().year, 2000)
+
+
+if picked_year != '':
+    filtered = movies[
+        (movies.runtime >= runtime1) & (movies.runtime < runtime2) & 
+        (movies.revenue >= revenue1) & (movies.revenue < revenue2) &
+        # (movies.parsed_genres.str.contains(picked_genre, regex=False)) &
+        # (movies.parsed_genres.str.contains(picked_genre2, regex=False)) &     
+        (movies.release_date.dt.year == picked_year)
+    ]
+else:
+    filtered = movies[
+        (movies.runtime >= runtime1) & (movies.runtime < runtime2) & 
+        (movies.revenue >= revenue1) & (movies.revenue < revenue2)
+        # (movies.parsed_genres.str.contains(picked_genre, regex=False)) &
+        # (movies.parsed_genres.str.contains(picked_genre2, regex=False))
+    ]
+
+# filtered = movies[
+#     (movies.runtime >= runtime1) & (movies.runtime < runtime2) & 
+#     (movies.revenue >= revenue1) & (movies.revenue < revenue2)
+# ]
+# if picked_year != '':
+#     filtered = filtered & movies[ (movies.release_date.dt.year == picked_year) ]
+    
+# if picked_genre != '':
+#     filtered = filtered & movies[ (movies.parsed_genres.str.contains(picked_genre, regex=False)) ]
+
+# if picked_genre2 != '':
+#     filtered = filtered & movies[ (movies.parsed_genres.str.contains(picked_genre2, regex=False)) ]
+     
 
 'Control graph limits in the sidebar'
 # Graph runtime vs revenue
