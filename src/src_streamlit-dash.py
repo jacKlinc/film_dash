@@ -1,3 +1,4 @@
+#!/usr/bin/python3.7
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -136,3 +137,15 @@ else:
 # Graph runtime vs revenue
 sns.scatterplot(x='runtime', y='revenue', data=filtered)
 st.pyplot()
+
+'## Recommender'
+'Look for a movie you like'
+
+movie_search = st.text_input('Search for a movie')
+'favourite movie: ', movie_search
+
+
+'titles', list(movies.title[movies.title.str.contains(movie_search, case=False, regex=False, na=False)])
+
+
+'Here\'s some you might like'
