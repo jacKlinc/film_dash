@@ -2,6 +2,3 @@
 data/
 .ipynb_checkpoints/
 src/streamlit_example_side.py
-
-# kaggle api
-.kaggle/kaggle.json
