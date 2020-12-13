@@ -1,4 +1,3 @@
-#!/usr/bin/python3.7
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -59,13 +58,13 @@ movies = load_data()
 ## Runtime/Revenue Sliders
 # Runtime limits using sliders in sidebar
 st.sidebar.markdown('### Runtime')  
-runtime1 = st.sidebar.slider('Runtime lower limit', 0, movies.runtime.max(), 0, step=5)
-runtime2 = st.sidebar.slider('Runtime upper limit', 0, movies.runtime.max(), movies.runtime.max(), step=5)
+runtime1 = st.sidebar.slider('Runtime lower limit', 0, int(movies.runtime.max()), 0, step=5)
+runtime2 = st.sidebar.slider('Runtime upper limit', 0, int(movies.runtime.max()), int(movies.runtime.max()), step=5)
 
 # Revenue limits using sliders in sidebar
 st.sidebar.markdown('### Revenue')
-revenue1 = st.sidebar.slider('Revenue lower limit', 0, movies.revenue.max(), 0, step=10000)
-revenue2 = st.sidebar.slider('Revenue upper limit', 0, movies.revenue.max(), movies.revenue.max(), step=10000)
+revenue1 = st.sidebar.slider('Revenue lower limit', 0, int(movies.revenue.max()), 0, step=10000)
+revenue2 = st.sidebar.slider('Revenue upper limit', 0, int(movies.revenue.max()), int(movies.revenue.max()), step=10000)
 
 
 ## Genre
@@ -135,8 +134,9 @@ else:
 
 'Control graph limits in the sidebar'
 # Graph runtime vs revenue
+fig, ax = plt.subplots()
 sns.scatterplot(x='runtime', y='revenue', data=filtered)
-st.pyplot()
+st.pyplot(fig)
 
 '## Recommender'
 'Look for a movie you like'
@@ -145,7 +145,7 @@ movie_search = st.text_input('Search for a movie')
 'favourite movie: ', movie_search
 
 
-'titles', list(movies.title[movies.title.str.contains(movie_search, case=False, regex=False, na=False)])
+'titles', movies.title[movies.title.str.contains(movie_search, case=False, regex=False, na=False)]
 
 
 'Here\'s some you might like'
