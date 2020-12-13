@@ -1,4 +1,9 @@
 # folders
 data/
 .ipynb_checkpoints/
-src/streamlit_example_side.py
+.kaggle/
+src/__pycache__/
+
+# data
+movie_metadata.csv
+movie_metadata.csv.zip
