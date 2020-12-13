@@ -78,20 +78,6 @@ movies['parsed_genres'] = pd.Series(list(map(make_list, movies.genres)))
 genre_list = genre_list.tolist()
 genre_list.insert(0, 'Any')
 
-# picked_genre = st.sidebar.selectbox(
-#      'Pick a genre',
-#      genre_list)
-
-# # Remove other genre option
-# genre_list = np.delete(genre_list, np.argwhere(genre_list == picked_genre))
-
-# picked_genre2 = st.sidebar.selectbox(
-#      'Pick another?',
-#      genre_list)
-
-# # Set to wildcard if either is 'Any
-# picked_genre = picked_genre2 = '' if (picked_genre == 'Any') or (picked_genre2 == 'Any') else picked_genre
-
 ## Year slider
 agree = st.sidebar.checkbox('Select year')
 
@@ -117,20 +103,6 @@ else:
         # (movies.parsed_genres.str.contains(picked_genre, regex=False)) &
         # (movies.parsed_genres.str.contains(picked_genre2, regex=False))
     ]
-
-# filtered = movies[
-#     (movies.runtime >= runtime1) & (movies.runtime < runtime2) & 
-#     (movies.revenue >= revenue1) & (movies.revenue < revenue2)
-# ]
-# if picked_year != '':
-#     filtered = filtered & movies[ (movies.release_date.dt.year == picked_year) ]
-    
-# if picked_genre != '':
-#     filtered = filtered & movies[ (movies.parsed_genres.str.contains(picked_genre, regex=False)) ]
-
-# if picked_genre2 != '':
-#     filtered = filtered & movies[ (movies.parsed_genres.str.contains(picked_genre2, regex=False)) ]
-     
 
 'Control graph limits in the sidebar'
 # Graph runtime vs revenue
