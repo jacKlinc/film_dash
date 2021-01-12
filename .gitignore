@@ -1,7 +1,7 @@
 # folders
 data/
 .ipynb_checkpoints/
-# .kaggle/
+.kaggle/
 src/__pycache__/
 
 # data
